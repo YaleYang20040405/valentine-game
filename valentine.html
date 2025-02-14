@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>情人节回忆挑战 ❤️</title>
+    <style>
+        body {
+            background: #ffe6f2;
+            font-family: "Microsoft YaHei";
+            text-align: center;
+        }
+        .question {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px pink;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        button {
+            margin: 10px;
+            padding: 12px 24px;
+            background: #ff6699;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ff3385;
+            transform: scale(1.1);
+        }
+        #hearts {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+        }
+        .balloon {
+            position: absolute;
+            animation: float 3s ease-out;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="hearts">❤️💏</div>
+    
+    <div id="game-container">
+        <!-- 各关卡将通过JavaScript动态加载 -->
+    </div>
+
+<script>
+const questions = [
+    {
+        q: "我们一起吃的第一顿饭是：",
+        options: ["香菜", "西少爷", "吉野家"],
+        correct: 2
+    },
+    {
+        q: "我们第一次认真牵手是在：",
+        options: ["北外校园", "什刹海", "马路上"],
+        correct: 1
+    },
+    {
+        q: "我们在雪天车玻璃上写下的一句话是：",
+        options: ["la vie est belle", "viva la vida"],
+        correct: 0
+    },
+    {
+        q: "去摩洛哥之前的最后一顿饭是：",
+        options: ["桥香园过桥米线", "新湘彬", "烤肉"],
+        correct: 2
+    },
+    {
+        q: "小羊在印度最挂念的是：",
+        options: ["她的小宝琪琪", "她的小宝琪琪", "北外"],
+        correct: 0 // 0和1都算正确
+    }
+];
+
+let currentLevel = 0;
+let wrongRecords = [];
+
+function createQuestion(level) {
+    const q = questions[level];
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+        <h2>第 ${level+1} 关 ❤️</h2>
+        <p>${q.q}</p>
+        ${q.options.map((opt, i) => `
+            <button onclick="checkAnswer(${level}, ${i})">${opt}</button>
+        `).join('')}
+    `;
+    return div;
+}
+
+function checkAnswer(level, selected) {
+    const correct = questions[level].correct;
+    const isCorrect = (level === 4) ? (selected <= 1) : (selected === correct);
+
+    if(isCorrect) {
+        showBalloons();
+        if(level === 4) {
+            showFinal();
+        } else {
+            setTimeout(() => {
+                currentLevel++;
+                loadQuestion();
+            }, 1500);
+        }
+    } else {
+        wrongRecords.push({level: level+1, selected});
+        showPunishment();
+    }
+}
+
+function showBalloons() {
+    for(let i=0; i<20; i++) {
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        balloon.innerHTML = '🎈';
+        balloon.style.left = Math.random() * 95 + '%';
+        balloon.style.fontSize = (Math.random() * 30 + 20) + 'px';
+        document.body.appendChild(balloon);
+        setTimeout(() => balloon.remove(), 3000);
+    }
+}
+
+function showPunishment() {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+        <h2>💏 惩罚时间！</h2>
+        <p>亲小羊1000下！💋</p>
+        <p>并为小羊做1次饭！🍳</p>
+        <button onclick="loadQuestion()">重新答题</button>
+    `;
+    document.getElementById('game-container').innerHTML = '';
+    document.getElementById('game-container').appendChild(div);
+}
+
+function showFinal() {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+        <h1>❤️ I love you ❤️</h1>
+        <p>May peace be with us</p>
+        <p>Exister, c'est oser se jeter dans le monde</p>
+        <div style="font-size:40px">💏💏💏</div>
+        ${wrongRecords.length ? `
+            <hr>
+            <h3>错误记录：</h3>
+            <ul>
+                ${wrongRecords.map(r => `
+                    <li>第 ${r.level} 关选择了：${questions[r.level-1].options[r.selected]}</li>
+                `).join('')}
+            </ul>
+        ` : ''}
+    `;
+    document.getElementById('game-container').innerHTML = '';
+    document.getElementById('game-container').appendChild(div);
+}
+
+function loadQuestion() {
+    document.getElementById('game-container').innerHTML = '';
+    document.getElementById('game-container').appendChild(createQuestion(currentLevel));
+}
+
+// 初始化游戏
+loadQuestion();
+</script>
+</body>
+</html>
